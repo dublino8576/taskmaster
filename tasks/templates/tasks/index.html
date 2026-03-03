@@ -1,7 +1,5 @@
-{% load static %}
-
+{% load static %} {% load crispy_forms_tags %}
 <!doctype html>
-
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -23,16 +21,7 @@
       referrerpolicy="no-referrer"
     />
     <!-- custom styles -->
-    {% comment %} {# Loads the static files template tag to enable the {% static
-    %} template tag. This allows referencing static files (CSS, JavaScript,
-    images) with the correct URL path. The {% static 'css/style.css' %} tag
-    resolves to the actual file location in the STATIC_ROOT or STATIC_URL
-    directory as configured in Django settings. The correct static path assumes
-    the file structure: - project_root/ - static/ - css/ - style.css Ensure
-    STATIC_URL is defined in settings.py (typically '/static/') and that {% load
-    static %} appears before any {% static %} calls in the template. #}
-    {%endcomment %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link href="{% static 'css/style.css' %}" rel="stylesheet" />
   </head>
 
   <body>
@@ -42,12 +31,38 @@
           <h1 class="display-3 text-center">Taskmaster</h1>
         </div>
       </div>
-
-      <!-- Columns for to-do and done go here -->
-      <div class="row mt-4">
-        <!-- To do column -->
-        <div class="col-md-6">
+      <div class="row">
+        <div class="col-12 mt-4">
+          <h2>Add a new task</h2>
+          <form method="post" action="{% url 'tasks:task_list' %}">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-lg-6">{{ form.title|as_crispy_field }}</div>
+              <div class="col-sm-4 col-lg-2">
+                {{ form.due_date|as_crispy_field }}
+              </div>
+              <div class="col-sm-4 col-lg-2">
+                {{ form.category|as_crispy_field }}
+              </div>
+              <div class="col-sm-4 col-lg-2">
+                <button
+                  id="add-task-btn"
+                  type="submit"
+                  class="btn btn-primary mb-3"
+                >
+                  Add Task
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12 col-md-6 mt-4">
           <h2>To do</h2>
+          <!-- a striped bootstrap table displaying the Due date, title, 
+                 category and actions for of each task in the to_do_tasks object
+                 using the Django template language -->
           <table class="table table-striped">
             <thead>
               <tr>
@@ -58,44 +73,38 @@
               </tr>
             </thead>
             <tbody>
-              {% for task in todo_tasks %}
+              {% for task in to_do_tasks %}
               <tr>
-                <td>{{ task.due_date|date:"M d, Y"|default:"No due date" }}</td>
+                <td>{{ task.due_date }}</td>
                 <td>{{ task.title }}</td>
-                <td>{{ task.category.name }}</td>
+                <td>{{ task.category }}</td>
                 <td>
                   <a
                     href="#"
-                    class="action-link action-toggle"
-                    title="Mark as complete"
-                  >
-                    <i class="fa-regular fa-square"></i>
-                  </a>
-                  <a href="#" class="action-link action-edit" title="Edit task">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                  </a>
+                    class="checkbox-btn"
+                    aria-label="Mark as done"
+                    title="Mark as done"
+                    ><i class="fa-regular fa-square action-icon"></i
+                  ></a>
                   <a
                     href="#"
-                    class="action-link action-delete"
+                    class="delete-btn"
+                    aria-label="Delete task"
                     title="Delete task"
-                  >
-                    <i class="fa-solid fa-trash"></i>
-                  </a>
+                    ><i class="fa-solid fa-trash-can action-icon"></i
+                  ></a>
                 </td>
-              </tr>
-              {% empty %}
-              <tr>
-                <td colspan="4" class="text-center">No tasks to do!</td>
               </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
-
-        <!-- Done column -->
-        <div class="col-md-6">
+        <div class="col-12 col-lg-6 mt-4">
           <h2>Done</h2>
-          <table class="table table-striped">
+          <!-- a grey striped bootstrap table displaying the Due date, title, 
+                    category and actions for each task in the done_tasks object
+                    using jinja templating language -->
+          <table class="table table-striped table-secondary">
             <thead>
               <tr>
                 <th>Due</th>
@@ -107,32 +116,25 @@
             <tbody>
               {% for task in done_tasks %}
               <tr>
-                <td>{{ task.due_date|date:"M d, Y"|default:"No due date" }}</td>
+                <td>{{ task.due_date }}</td>
                 <td>{{ task.title }}</td>
-                <td>{{ task.category.name }}</td>
+                <td>{{ task.category }}</td>
                 <td>
                   <a
                     href="#"
-                    class="action-link action-toggle"
-                    title="Mark as incomplete"
-                  >
-                    <i class="fa-regular fa-square-check"></i>
-                  </a>
-                  <a href="#" class="action-link action-edit" title="Edit task">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                  </a>
+                    class="checkbox-btn"
+                    aria-label="Mark as not done"
+                    title="Mark as not done"
+                    ><i class="fa-regular fa-square-check action-icon"></i
+                  ></a>
                   <a
                     href="#"
-                    class="action-link action-delete"
+                    class="delete-btn"
+                    aria-label="Delete task"
                     title="Delete task"
-                  >
-                    <i class="fa-solid fa-trash"></i>
-                  </a>
+                    ><i class="fa-solid fa-trash-can action-icon"></i
+                  ></a>
                 </td>
-              </tr>
-              {% empty %}
-              <tr>
-                <td colspan="4" class="text-center">No completed tasks!</td>
               </tr>
               {% endfor %}
             </tbody>
